@@ -1,0 +1,89 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+}
+.navbar {
+    background-color: #f2f2f2;
+    padding: 10px;
+}
+.navbar ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+}
+.navbar li {
+    float: left;
+}
+.navbar li a {
+    display: block;
+    padding: 10px;
+    text-decoration: none;
+    color: #333;
+}
+.navbar img {
+    height: 60px;
+    margin-right: 10px;
+    vertical-align: middle;
+}
+.container {
+    margin: 0 auto;
+    height: all;
+}
+.container_dashboard {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    max-width: 1900px;
+    margin: 0 auto;
+    padding: 10px;
+    height: all;
+}
+.container_dashboard > div{
+    width: 50%;
+}
+h1 {
+    text-align: center;
+}
+.uploadbox {
+    border: 2px dashed #ccc;
+    border-radius: 4px;
+    padding: 20px;
+    text-align: center;
+    cursor: pointer;
+}
+.uploadbox:hover {
+    background-color: #f2f2f2;
+}
+.uploadbox input {
+    display: none;
+}
+.label {
+    font-size: 24px;
+    text-align: center;
+    margin-top: 20px;
+}
+.button {
+    background-color: #4CAF50;
+    border: none;
+    color: white;
+    padding: 10px 20px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin-top: 20px;
+    cursor: pointer;
+}
+.chart {
+    height: 300px;
+    background-color: #f2f2f2;
+    margin-top: 20px;
+}
+footer {
+    background-color: #0484CF;
+    color: white;
+    text-align: center;
+    padding: 10px;
+}

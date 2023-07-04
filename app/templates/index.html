@@ -1,0 +1,29 @@
+{% extends './layout.html' %}
+
+{% block title %}{{data.area}} - {{data.title}}{% endblock %}
+
+{% block container %}
+<div class="container">
+    <h1>{{data.title}}</h1>
+
+    <div class="container_dashboard">
+        <div id="chart_bar_TAT_mean"></div>
+        <div id="chart_bar_counts"></div>
+        <div id="chart_bar_TAT_mean_1"></div>
+        <div id="chart_bar_counts_1"></div>
+    </div>
+</div>
+{% endblock %}
+
+{% block enviarArchivo_script %}
+<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+<script>
+    var chart_bar_TAT_mean = {{ chart_bar_TAT_mean | safe}}
+    var chart_bar_counts = {{ chart_bar_counts | safe }}
+
+    Plotly.plot("chart_bar_counts", chart_bar_counts, {})
+    Plotly.plot("chart_bar_TAT_mean", chart_bar_TAT_mean, {})
+    Plotly.plot("chart_bar_counts_1", chart_bar_counts, {})
+    Plotly.plot("chart_bar_TAT_mean_1", chart_bar_TAT_mean, {})
+</script>
+{% endblock %}

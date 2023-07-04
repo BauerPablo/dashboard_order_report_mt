@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/layout.css') }}">
+</head>
+<body>
+
+    <div class="navbar">
+        <ul>
+            <li><img src="../static/img/AR positivo_2-02.png" alt="Logo"></li>
+            <li><a href="/">Inicio</a></li>
+            <li><a href="como_funciona">¿Cómo funciona?</a></li>
+        </ul>
+    </div>
+
+    {% block container %}
+    {% endblock %}
+
+    <footer>
+        <p style="color: white;">Metrología - Aerolineas Argentinas &copy; 2023</p>
+    </footer>
+
+    {% block enviarArchivo_script %}
+    {% endblock %}
+
+</body>
+</html>
