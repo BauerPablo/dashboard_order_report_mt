@@ -4,13 +4,11 @@
 
 {% block container %}
 <div class="container">
-    <h1>{{data.title}}</h1>
-
     <div class="container_dashboard">
+        <div id="chart_indicadores"></div>
+        <div id="chart_pie"></div>
         <div id="chart_bar_TAT_mean"></div>
         <div id="chart_bar_counts"></div>
-        <div id="chart_bar_TAT_mean_1"></div>
-        <div id="chart_bar_counts_1"></div>
     </div>
 </div>
 {% endblock %}
@@ -20,10 +18,12 @@
 <script>
     var chart_bar_TAT_mean = {{ chart_bar_TAT_mean | safe}}
     var chart_bar_counts = {{ chart_bar_counts | safe }}
+    var chart_indicadores = {{ chart_indicadores | safe }}
+    var chart_pie = {{ chart_pie | safe }}
 
     Plotly.plot("chart_bar_counts", chart_bar_counts, {})
     Plotly.plot("chart_bar_TAT_mean", chart_bar_TAT_mean, {})
-    Plotly.plot("chart_bar_counts_1", chart_bar_counts, {})
-    Plotly.plot("chart_bar_TAT_mean_1", chart_bar_TAT_mean, {})
+    Plotly.plot("chart_indicadores", chart_indicadores, {})
+    Plotly.plot("chart_pie", chart_pie, {})
 </script>
 {% endblock %}

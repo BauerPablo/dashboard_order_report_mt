@@ -29,7 +29,7 @@ body {
 }
 .container {
     margin: 0 auto;
-    height: all;
+    text-align: center;
 }
 .container_dashboard {
     display: flex;
@@ -38,10 +38,15 @@ body {
     max-width: 1900px;
     margin: 0 auto;
     padding: 10px;
-    height: all;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 10px;
 }
 .container_dashboard > div{
+    display: flex;
+    justify-content: space-evenly;
     width: 50%;
+    height: 50%;
 }
 h1 {
     text-align: center;
@@ -81,9 +86,34 @@ h1 {
     background-color: #f2f2f2;
     margin-top: 20px;
 }
+table {
+    margin: 0 auto;
+}
+.card {
+    text-align: center;
+    width: 250px;
+    padding: 5px;
+    margin: 0 auto;
+}
+.card-body {
+    text-align: center;
+    margin: 0 auto;
+    border-style: groove;
+    border-color: #DADCE0;
+    border-radius: 5px;
+    border-width: 1px;
+}
+.card-title {
+    font-size: 20px;
+    padding: 10px;
+    margin-top: 0px;
+    margin-bottom: 10px;
+    background-color: #DADCE0;
+}
+
 footer {
     background-color: #0484CF;
     color: white;
     text-align: center;
-    padding: 10px;
+    padding: 15px;
 }

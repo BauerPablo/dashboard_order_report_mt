@@ -26,9 +26,41 @@ def index():
 
 	data={
 		'title': 'Main Dashboard',
-		'area': 'Metrología & Laboratorio'
+		'area': 'Metrología & Laboratorio - v0.5'
 	}
+	#---------------------------------------
+	indicadores = go.Figure()
 
+	indicadores.add_trace(go.Indicator(
+	    mode = "number+delta",
+	    value = 200,
+	    domain = {'x': [0, 0.5], 'y': [0, 0.5]},
+	    delta = {'reference': 400, 'relative': True, 'position' : "top"}))
+
+	indicadores.add_trace(go.Indicator(
+	    mode = "number+delta",
+	    value = 350,
+	    delta = {'reference': 400, 'relative': True},
+	    domain = {'x': [0, 0.5], 'y': [0.5, 1]}))
+
+	indicadores.add_trace(go.Indicator(
+	    mode = "number+delta",
+	    value = 450,
+	    title = {"text": "Accounts<br><span style='font-size:0.8em;color:gray'>Subtitle</span><br><span style='font-size:0.8em;color:gray'>Subsubtitle</span>"},
+	    delta = {'reference': 400, 'relative': True},
+	    domain = {'x': [0.6, 1], 'y': [0, 1]}))
+
+	chart_indicadores = json.dumps(indicadores, cls = plotly.utils.PlotlyJSONEncoder)
+
+	#---------------------------------------
+	labels_pie = ['Oxygen','Hydrogen','Carbon_Dioxide','Nitrogen']
+	values_pie = [4500, 2500, 1053, 500]
+
+	# Use `hole` to create a donut-like pie chart
+	pie_fig = go.Figure(data=[go.Pie(labels=labels_pie, values=values_pie, hole=.3)])
+
+	chart_pie = json.dumps(pie_fig, cls = plotly.utils.PlotlyJSONEncoder)
+	#---------------------------------------
 	years = [1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012]
 
 	x=['b', 'a', 'c', 'd']
@@ -37,8 +69,19 @@ def index():
 	fig_bar_1.add_trace(go.Bar(x=x, y=[1, 4, 9, 16], name='Ottawa'))
 	fig_bar_1.add_trace(go.Bar(x=x, y=[6, 8, 4.5, 8], name='Toronto'))
 
-	fig_bar_1.update_layout(barmode='stack', xaxis={'categoryorder':'category ascending'})
+	fig_bar_1.update_layout(barmode='stack',
+							xaxis={'categoryorder':'category ascending'},
+							width=800,
+							height=375,
+							margin=dict(l=5,
+								        r=1,
+								        b=20,
+								        t=20,
+								        pad=0)
+					        )
+	chart_bar_counts = json.dumps(fig_bar_1, cls = plotly.utils.PlotlyJSONEncoder)
 
+	#---------------------------------------
 	fig_bar_2 = go.Figure()
 	fig_bar_2.add_trace(go.Bar(x=years,
 	                y=[219, 146, 112, 127, 124, 180, 236, 207, 236, 263,
@@ -69,13 +112,21 @@ def index():
 	    ),
 	    barmode='group',
 	    bargap=0.15, # gap between bars of adjacent location coordinates.
-	    bargroupgap=0.1 # gap between bars of the same location coordinate.
+	    bargroupgap=0.1, # gap between bars of the same location coordinate.
+	    width=800,
+		height=375,
+		margin=dict(l=5,
+			        r=5,
+			        b=20,
+			        t=30,
+			        pad=10,
+			        autoexpand=True)
 	)
 
-	chart_bar_counts = json.dumps(fig_bar_1, cls = plotly.utils.PlotlyJSONEncoder)
+	
 	chart_bar_TAT_mean = json.dumps(fig_bar_2, cls = plotly.utils.PlotlyJSONEncoder)
 
-	return render_template('index.html', data=data, chart_bar_TAT_mean=chart_bar_TAT_mean, chart_bar_counts=chart_bar_counts)
+	return render_template('index.html', data=data, chart_bar_TAT_mean=chart_bar_TAT_mean, chart_bar_counts=chart_bar_counts, chart_indicadores=chart_indicadores, chart_pie=chart_pie)
 
 def pagina_no_encontrada(error):
 
