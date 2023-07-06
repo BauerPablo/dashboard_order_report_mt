@@ -50,6 +50,9 @@ body {
 }
 h1 {
     text-align: center;
+    margin-top: 0.2em;
+    margin-bottom: 0em;
+    color: #0484CF;
 }
 .uploadbox {
     border: 2px dashed #ccc;
