@@ -30,7 +30,7 @@ def refresh_data():
 	data_open_cm = pd.read_csv(upload_path_open)
 
 	#-------------------------------
-	# Procesando los datos de CLOSE
+	# Procesamiento de los datos de CLOSE
 	#-------------------------------
 
 	# Drop de los datos duplicados, que son los valores antes de pasuar el CM en el acknowledge
@@ -85,7 +85,7 @@ def refresh_data():
 	data_close_cm = data_close_cm.merge(data_TAT, how='left', on='year_month', suffixes=['', '_mean'])
 
 	#-------------------------------
-	# Procesando los datos de OPEN
+	# Procesamiento de los datos de OPEN
 	#-------------------------------
 
 	data_open_cm = data_open_cm.drop(columns='steps')
@@ -97,49 +97,69 @@ def refresh_data():
 @app.route('/')
 @app.route('/home')
 def index():
+	# Esta función retorna un render_template en HTML y las variables de los graficos en JSON
 
+	# Información de la pagina
 	data={
 		'title': 'Main Dashboard',
 		'area': 'Metrología & Laboratorio - v0.5'
 	}
 
+	# Importando los datos de la BBDD
 	data_close_cm, data_open_cm = refresh_data()
-
-	print(data_close_cm)
 	
 	#---------------------------------------
 	# INDICADORES
+	# Labels que indican KPI's de gestión del laboratorio
+	# - TAT promedios
+	# - TAT promedios del ultimo mes y diferencia con el anterior
+	# - TAT de ordenes abiertas
+	# - Cantidad de unidades en cada uno de los estados (OPEN, RUNNING, PAUSED, etc.)
+	#
+	# TO-DO: desplegable para diferenciar entre AEP y EZE
 	#---------------------------------------
+
+	# Instancia de los indicadores
 	indicadores = go.Figure()
 
+	# Ordenes Pausadas. Agrupadas entre NO MANPOWER, SENT TO EXTERNAL y SCRAP
 	mask_open_paused = (data_open_cm.STATUS_CM == 'PAUSED - NO MANPOWER') | (data_open_cm.STATUS_CM == 'PAUSED - SENT TO EXTERNAL REPAIR') | (data_open_cm.STATUS_CM == 'PAUSED - AWAITING PHYSICAL DESTRUCTION')
 	paused_cm_value = data_open_cm[mask_open_paused]
 
+	# Ordenes Pausadas. Solo OTHERS
 	mask_open_paused_other = data_open_cm.STATUS_CM == 'PAUSED - OTHER'
 	paused_other_cm_value = data_open_cm[mask_open_paused_other]
 
+	# TAT promedio total historico
 	mask_close_TAT_mean = data_close_cm.order_date > '2021-12'
 	tat_mean_total = data_close_cm[mask_close_TAT_mean].TAT_ack_to_close.mean()
 
+	# TAT promedio ultimo mes
 	mask_close_TAT_mean_last_month = (data_close_cm.order_date < (datetime.now() - relativedelta(months=1)).strftime('%Y-%m')) & (data_close_cm.order_date > (datetime.now() - relativedelta(months=2)).strftime('%Y-%m'))
 	tat_mean_last_month = data_close_cm[mask_close_TAT_mean_last_month].TAT_ack_to_close.mean()
 
+	# TAT promedio mes actual
 	mask_close_TAT_mean_current_month = (data_close_cm.order_date < (datetime.now() - relativedelta(months=0)).strftime('%Y-%m')) & (data_close_cm.order_date > (datetime.now() - relativedelta(months=1)).strftime('%Y-%m'))
 	tat_mean_current_month = data_close_cm[mask_close_TAT_mean_current_month].TAT_ack_to_close.mean()
 
+	# Ordenes RUNNING
 	mask_running = data_open_cm.STATUS_CM == 'RUNNING'
 	running_cm_value = data_open_cm[mask_running]
 
+	# Ordenes OPEN
 	mask_open = data_open_cm.STATUS_CM == 'OPEN'
 	open_cm_value = data_open_cm[mask_open]
 
+	# Ordenes TRF
 	mask_open_TRF = data_open_cm.STATUS_CM == 'OPEN-TRANSFER-TO-SHOP'
 	open_TRF_cm_value = data_open_cm[mask_open_TRF]
 
+	# TAT medio de las ordenes en estado de PAUSA
 	paused_shop_TAT_mean = data_open_cm.PAUSED_SHOP_TAT.mean()
 
 	print(tat_mean_last_month)
 
+	# Indicadores. Se adjuntan a necesidad en una grilla de 2x4
 	indicadores.add_trace(go.Indicator(
 	    mode = "number+delta",
 	    value = paused_shop_TAT_mean,
@@ -190,75 +210,101 @@ def index():
 	    delta = {'reference': tat_mean_current_month, 'relative': False},
 	    domain = {'row': 1, 'column': 3}))
 
+	# configuración de la grilla
 	indicadores.update_layout(
     grid = {'rows': 2, 'columns': 4, 'pattern': "independent"})
 
-	
-
+	# Creación de JSON de los indicadores para llevarlos a HTML
 	chart_indicadores = json.dumps(indicadores, cls = plotly.utils.PlotlyJSONEncoder)
 
 	#---------------------------------------
 	# GRAFICO DE TORTA
+	# Muestra la proporción de Orders abiertas, categorizada por el STATUS
 	#---------------------------------------
-	labels_pie = data_open_cm.STATUS_CM.value_counts().index
-	values_pie = data_open_cm.STATUS_CM.value_counts().values
+
+	# Se genera una máscara para el grafico de torta y el resto de graficos para limitar los valores de la base de datos,
+	# despues del confinamiento severo, a partir del dec 2020.
+	mask_mayor_2021 = (data_close_cm.order_date > '2021')
+
+	# Se traen los datos y se crea un DF especifico para el gráfico
+	data_close_cm_STATUS_fig = pd.DataFrame(data_open_cm[mask_mayor_2021][['STATUS_CM']].value_counts()).reset_index()
 
 	# Use `hole` to create a donut-like pie chart
-	pie_fig = go.Figure(data=[go.Pie(labels=labels_pie, values=values_pie, hole=.3)])
+	# Grafico de torta
+	pie_fig = px.pie(data_close_cm_STATUS_fig,
+						values=0,
+						names='STATUS_CM',
+						color_discrete_sequence= px.colors.sequential.Teal_r,
+						hole=.3)
 
+	pie_fig.update_layout(
+		)
+	#pie_fig = go.Figure(data=[go.Pie(labels=labels_pie, values=values_pie, hole=.3)])
+
+	# Creación de JSON para llevarlos a HTML
 	chart_pie = json.dumps(pie_fig, cls = plotly.utils.PlotlyJSONEncoder)
 	
 
 	#---------------------------------------
 	# GRAFICO DE BARRAS TAT MEDIA
+	# Indica el TAT medio de cada mes y compara con el mismo mes de los dos años anteriores
+	# Por alguna razon no me deja cambiar los colores. No se por qué.
 	#---------------------------------------
 
+	# DF para crear los valores del grafico
+	data_close_cm_TAT_fig = pd.DataFrame(data_close_cm[mask_mayor_2021][['year', 'month', 'TAT_ack_to_close_mean']].value_counts()).reset_index().sort_values(by=['year'])
 
-	years = [1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012]
+	# Grafico de barras
+	fig_bar_1 = px.bar(data_close_cm_TAT_fig,
+						x='month',
+						y='TAT_ack_to_close_mean',
+						color='year',
+						color_discrete_sequence= px.colors.sequential.Teal,
+						text_auto=True)
 
-	x=['b', 'a', 'c', 'd']
-
-	fig_bar_1 = go.Figure(go.Bar(x=x, y=[2,5,1,9], name='Montreal'))
-	fig_bar_1.add_trace(go.Bar(x=x, y=[1, 4, 9, 16], name='Ottawa'))
-	fig_bar_1.add_trace(go.Bar(x=x, y=[6, 8, 4.5, 8], name='Toronto'))
-
-	fig_bar_1.update_layout(barmode='stack',
-							xaxis={'categoryorder':'category ascending'},
+	fig_bar_1.update_layout(title='Comparativa TAT [año a año]',
+							barmode='group',
+							bargap=0.15, # gap between bars of adjacent location coordinates.
+						    bargroupgap=0.1, # gap between bars of the same location coordinate.
 							width=800,
 							height=375,
 							margin=dict(l=5,
 								        r=1,
 								        b=20,
-								        t=20,
-								        pad=0)
-					        )
+								        t=30,
+								        pad=0)							
+							)
+
+	# Barra de desplazamiento por las fechas
+	fig_bar_1.update_xaxes(rangeslider_visible=True)
+
+	# Creación de JSON para llevarlos a HTML
 	chart_bar_counts = json.dumps(fig_bar_1, cls = plotly.utils.PlotlyJSONEncoder)
 
 	#---------------------------------------
 	# GRAFICO DE BARRAS CANTIDAD DE LIBERACIONES AEP EZE
+	# Grafico de barras que indica la cantidad de liberaciones mes a mes de los dos laboratorios AEP y EZE
 	#---------------------------------------
-	mask_shop_AEP = (data_close_cm.shop == 'METROLOGY-A') & (data_close_cm.order_date > '2021')
-	mask_shop_EZE = (data_close_cm.shop == 'METROLOGY') & (data_close_cm.order_date > '2021')
 
-	data_close_cm_sorted = data_close_cm.sort_values(by=['order_date'], ascending=True)
+	data_close_cm_fig = pd.DataFrame(data_close_cm[mask_mayor_2021][['year_month','shop']].value_counts()).reset_index()
 
-	fig_bar_2 = go.Figure()
-	fig_bar_2.add_trace(go.Bar(x=data_close_cm_sorted.year_month.value_counts().index.sort_values(ascending=True),
-	                y=data_close_cm_sorted[mask_shop_AEP].year_month.value_counts().values,
-	                name=data_close_cm_sorted[mask_shop_AEP].shop.value_counts().index[0],
-	                marker_color='rgb(55, 83, 109)'
-	                ))
-	fig_bar_2.add_trace(go.Bar(x=data_close_cm_sorted.year_month.value_counts().index.sort_values(ascending=True),
-	                y=data_close_cm_sorted[mask_shop_EZE].year_month.value_counts().values,
-	                name=data_close_cm_sorted[mask_shop_EZE].shop.value_counts().index[0],
-	                marker_color='rgb(26, 118, 255)'
-	                ))
+	fig_bar_2 = px.bar(data_close_cm_fig,
+						x='year_month',
+						y=0,
+						color='shop',
+						color_discrete_map={
+							'METROLOGY': 'rgb(55, 83, 109)',
+							'METROLOGY-A': 'rgb(26, 118, 255)'},
+						text_auto=True)
 
 	fig_bar_2.update_layout(
-	    title='US Export of Plastic Scrap',
+	    title='Liberaciones AEP y EZE',
 	    xaxis_tickfont_size=14,
+	    xaxis=dict(
+	    	title='Meses'
+	    ),
 	    yaxis=dict(
-	        title='USD (millions)',
+	        title='Cantidad de unidades',
 	        titlefont_size=16,
 	        tickfont_size=14,
 	    ),
@@ -280,14 +326,18 @@ def index():
 			        pad=10,
 			        autoexpand=True)
 	)
+
+	# Barra de desplazamiento por las fechas
 	fig_bar_2.update_xaxes(rangeslider_visible=True)
 	
+	# Creación de JSON para llevarlos a HTML
 	chart_bar_TAT_mean = json.dumps(fig_bar_2, cls = plotly.utils.PlotlyJSONEncoder)
 
 	return render_template('index.html', data=data, chart_bar_TAT_mean=chart_bar_TAT_mean, chart_bar_counts=chart_bar_counts, chart_indicadores=chart_indicadores, chart_pie=chart_pie)
 
 def pagina_no_encontrada(error):
 
+	# Página no encontrada y su mensaje de error
 	data={
 		'title':'Ups! Le pifiaste en algo. :(',
 		'area': 'Metrología & Laboratorio'
@@ -298,3 +348,4 @@ def pagina_no_encontrada(error):
 if __name__ == '__main__':
 	app.register_error_handler(400, pagina_no_encontrada)
 	app.run(debug=True, port=5000)
+	#TO-DO: hacer Tabs con otros graficos relevantes a medida que los soliciten.
