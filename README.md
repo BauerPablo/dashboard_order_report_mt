@@ -1,12 +1,12 @@
 <div float: center>
-	<img src="app/static/IMG/AR positivo_2-02.png" width="30%" height="30%" style="text-align: left;">
+	<img src="app/static/img/AR positivo_2-02.png" width="30%" height="30%" style="text-align: left;">
 </div>
 
 ---
 
 # DASHBOARD - CONTROL DE PRODUCCIÓN METROLOGÍA
 
-<img src="app/static/IMG/dash_img.png"  width="100%" height="100%">
+<img src="app/static/img/dash_img.png"  width="100%" height="100%">
 
 ## DESCRIPCIÓN DEL PROYECTO :es:
 
