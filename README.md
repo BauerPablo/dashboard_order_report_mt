@@ -8,7 +8,7 @@
 
 <img src="app/static/img/dash_img.png"  width="100%" height="100%">
 
-## DESCRIPCIÓN DEL PROYECTO :es:
+## DESCRIPCIÓN DEL PROYECTO 🇪🇸
 
 El dashboard del laboratorio de metrología es una herramienta visual que presenta información clave de manera organizada y fácilmente comprensible. Proporciona una visión general del desempeño y los resultados del laboratorio, permitiendo una supervisión y toma de decisiones más efectiva. A continuación, se describen algunas utilidades de un dashboard:
 
@@ -24,7 +24,7 @@ El dashboard del laboratorio de metrología es una herramienta visual que presen
 
 ---
 
-## PROJECT DESCRIPTION :en:
+## PROJECT DESCRIPTION 🇺🇸
 
 The metrology lab dashboard is a visual tool that presents key information in an organized and easily understandable way. Provides an overview of laboratory performance and results, enabling more effective monitoring and decision-making. Some dashboard utilities are described below:
 
